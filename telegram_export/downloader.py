@@ -138,12 +138,20 @@ class Downloader:
                     self.enqueue_media(
                         media_id, utils.get_peer_id(target), m.from_id, m.date
                     )
+                for row in m.buttons:
+                    for b in row:
+                        print(b.text)
+                        if b.text.lower() == "подробно":
+                            print(b.click)
+
+                button_content = None
 
                 self.dumper.dump_message(
                     message=m,
                     context_id=utils.get_peer_id(target),
                     forward_id=self.dumper.dump_forward(m.fwd_from),
-                    media_id=media_id
+                    media_id=media_id,
+                    button_content=button_content
                 )
             elif isinstance(m, types.MessageService):
                 if isinstance(m.action, types.MessageActionChatEditPhoto):
