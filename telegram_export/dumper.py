@@ -293,7 +293,14 @@ class Dumper:
             cur.execute("INSERT INTO SelfInformation VALUES (?)", (self_id,))
             self.commit()
 
-    def dump_message(self, message, context_id, forward_id, media_id):
+    def dump_message(
+        self,
+        message,
+        context_id,
+        forward_id,
+        media_id,
+        button_content=None
+    ):
         """
         Dump a Message into the Message table.
 
@@ -319,6 +326,7 @@ class Dumper:
                message.post_author,
                message.views,
                media_id,
+               button_content,
                utils.encode_msg_entities(message.entities),
                None)  # No MessageAction
 
@@ -348,6 +356,7 @@ class Dumper:
                None,  # No author
                None,  # No views
                media_id,  # Might have e.g. a new chat Photo
+               None,  # No button content
                None,  # No entities
                name)
 
