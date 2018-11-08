@@ -440,7 +440,7 @@ class Downloader:
             req = functions.messages.GetHistoryRequest(
                 peer=target_in,
                 offset_id=0,
-                offset_date=datetime.datetime.utcfromtimestamp(int(offset_date)),
+                offset_date=datetime.datetime.utcfromtimestamp(int(limit_date)),
                 add_offset=0,
                 limit=self.dumper.chunk_size,
                 max_id=0,
@@ -521,7 +521,9 @@ class Downloader:
                 # We dump forward (message ID going towards 0), so as soon
                 # as the minimum message ID (now in offset ID) is less than
                 # the highest ID ("closest" bound we need to reach), stop.
-                if count < req.limit or req.offset_id <= stop_at or int(limit_date) < history.messages[0].date.timestamp():
+                print(history.messages[0].date.timestamp())
+
+                if count < req.limit or req.offset_id <= stop_at or int(offset_date) > history.messages[0].date.timestamp():
                     __log__.debug('Received less messages than limit, done.')
                     max_id = self.dumper.get_max_message_id(target_id) or 0 # can't have NULL
                     self.dumper.save_resume(target_id, stop_at=max_id)
