@@ -16,6 +16,7 @@ import tqdm
 import appdirs
 from telethon import TelegramClient, utils
 from telegram_export.utils import parse_proxy_str
+from telethon.tl.functions.messages import CheckChatInviteRequest
 
 from telegram_export.dumper import Dumper
 from telegram_export.exporter import Exporter
@@ -157,6 +158,8 @@ def parse_args():
                              'Examples: socks5://user:password@127.0.0.1:1080. '
                              'http://localhost:8080')
 
+    parser.add_argument('--hash', type=str)
+
     return parser.parse_args()
 
 
@@ -294,6 +297,9 @@ async def main(loop):
 
     if args.list_dialogs or args.search_string:
         return await list_or_search_dialogs(args, client)
+
+    if args.hash:
+        dumper.config['Whitelist'] = str((await client(CheckChatInviteRequest(args.hash))).chat.id)
 
     exporter = Exporter(client, config, dumper, loop)
 
