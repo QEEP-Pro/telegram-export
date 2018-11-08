@@ -9,6 +9,7 @@ import difflib
 import logging
 import os
 import re
+import time
 from contextlib import suppress
 
 import tqdm
@@ -66,7 +67,9 @@ def load_config(filename):
         'ChunkSize': '100',
         'MaxChunks': '0',
         'LibraryLogLevel': 'WARNING',
-        'MediaFilenameFmt': 'usermedia/{name}-{context_id}/{type}-{filename}'
+        'MediaFilenameFmt': 'usermedia/{name}-{context_id}/{type}-{filename}',
+        'OffsetDate': 0,
+        'LimitDate': time.time()
     }
 
     # Load from file
@@ -153,6 +156,7 @@ def parse_args():
                         help='set proxy string. '
                              'Examples: socks5://user:password@127.0.0.1:1080. '
                              'http://localhost:8080')
+
     return parser.parse_args()
 
 

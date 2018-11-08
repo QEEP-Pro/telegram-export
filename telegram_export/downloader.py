@@ -124,7 +124,7 @@ class Downloader:
             else:
                 self.dumper.dump_channel(entity.full_chat, chat, photo_id)
 
-    def _dump_messages(self, messages, target):
+    async def _dump_messages(self, messages, target):
         """
         Helper method to iterate the messages from a GetMessageHistoryRequest
         and dump them into the Dumper, mostly to avoid excessive nesting.
@@ -138,20 +138,20 @@ class Downloader:
                     self.enqueue_media(
                         media_id, utils.get_peer_id(target), m.from_id, m.date
                     )
-                for row in m.buttons:
-                    for b in row:
-                        print(b.text)
-                        if b.text.lower() == "подробно":
-                            print(b.click)
 
-                button_content = None
+                m._client = self.client
+
+                event_id = None
+
+                for row in await m.get_buttons():
+                    event_id = row[0].data.decode("utf-8").split(' ')[1]
 
                 self.dumper.dump_message(
                     message=m,
                     context_id=utils.get_peer_id(target),
                     forward_id=self.dumper.dump_forward(m.fwd_from),
                     media_id=media_id,
-                    button_content=button_content
+                    event_id=event_id
                 )
             elif isinstance(m, types.MessageService):
                 if isinstance(m.action, types.MessageActionChatEditPhoto):
@@ -402,7 +402,7 @@ class Downloader:
             date = getattr(photo, 'date', None) or datetime.datetime.now()
         self.enqueue_media(photo_id, context, peer_id, date)
 
-    async def start(self, target_id):
+    async def start(self, target_id, offset_date, limit_date):
         """
         Starts the dump with the given target ID.
         """
@@ -440,7 +440,7 @@ class Downloader:
             req = functions.messages.GetHistoryRequest(
                 peer=target_in,
                 offset_id=0,
-                offset_date=None,
+                offset_date=datetime.datetime.utcfromtimestamp(int(offset_date)),
                 add_offset=0,
                 limit=self.dumper.chunk_size,
                 max_id=0,
@@ -502,7 +502,7 @@ class Downloader:
                 ent_bar.total = len(self._checked_entity_ids)
 
                 # Dump the messages from this batch
-                self._dump_messages(history.messages, target)
+                await self._dump_messages(history.messages, target)
 
                 # Determine whether to continue dumping or we're done
                 count = len(history.messages)
@@ -516,12 +516,12 @@ class Downloader:
 
                 # Receiving less messages than the limit means we have
                 # reached the end, so we need to exit. Next time we'll
-                # start from offset 0 again so we can check for new messages.
+                # start from offset 0 again so we can check for new messages
                 #
                 # We dump forward (message ID going towards 0), so as soon
                 # as the minimum message ID (now in offset ID) is less than
                 # the highest ID ("closest" bound we need to reach), stop.
-                if count < req.limit or req.offset_id <= stop_at:
+                if count < req.limit or req.offset_id <= stop_at or int(limit_date) < history.messages[0].date.timestamp():
                     __log__.debug('Received less messages than limit, done.')
                     max_id = self.dumper.get_max_message_id(target_id) or 0 # can't have NULL
                     self.dumper.save_resume(target_id, stop_at=max_id)

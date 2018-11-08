@@ -194,6 +194,7 @@ class Dumper:
                       "PostAuthor TEXT,"
                       "ViewCount INT,"
                       "MediaID INT,"
+                      "EventID TEXT,"
                       "Formatting TEXT,"  # e.g. bold, italic, etc.
                       "ServiceAction TEXT,"  # friendly name of action if it is
                       # a MessageService
@@ -299,7 +300,7 @@ class Dumper:
         context_id,
         forward_id,
         media_id,
-        button_content=None
+        event_id=None
     ):
         """
         Dump a Message into the Message table.
@@ -326,7 +327,7 @@ class Dumper:
                message.post_author,
                message.views,
                media_id,
-               button_content,
+               event_id,
                utils.encode_msg_entities(message.entities),
                None)  # No MessageAction
 

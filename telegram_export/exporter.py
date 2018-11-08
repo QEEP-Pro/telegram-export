@@ -54,6 +54,9 @@ class Exporter:
         self.downloader = Downloader(client, config['Dumper'], dumper, loop)
         self.logger = logging.getLogger("exporter")
 
+        self.offset_date = config['Dumper']['OffsetDate']
+        self.limit_date = config['Dumper']['LimitDate']
+
     async def close(self):
         """Gracefully close the exporter"""
         # Downloader handles its own graceful exit
@@ -70,17 +73,17 @@ class Exporter:
             async for entity in get_entities_iter('whitelist',
                                                   self.dumper.config['Whitelist'],
                                                   self.client):
-                await self.downloader.start(entity)
+                await self.downloader.start(entity, self.offset_date, self.limit_date)
         elif 'Blacklist' in self.dumper.config:
             # May be blacklist, so save the IDs on who to avoid
             async for entity in get_entities_iter('blacklist',
                                                   self.dumper.config['Blacklist'],
                                                   self.client):
-                await self.downloader.start(entity)
+                await self.downloader.start(entity, self.offset_date, self.limit_date)
         else:
             # Neither blacklist nor whitelist - get all
             for dialog in await self.client.get_dialogs(limit=None):
-                await self.downloader.start(dialog.entity)
+                await self.downloader.start(dialog.entity, self.offset_date, self.limit_date)
 
     async def download_past_media(self):
         """
