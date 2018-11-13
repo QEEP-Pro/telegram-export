@@ -143,16 +143,18 @@ class Downloader:
 
                 event_id = None
 
-                for row in await m.get_buttons():
-                    event_id = row[0].data.decode("utf-8").split(' ')[1]
+                buttons = await m.get_buttons()
 
-                self.dumper.dump_message(
-                    message=m,
-                    context_id=utils.get_peer_id(target),
-                    forward_id=self.dumper.dump_forward(m.fwd_from),
-                    media_id=media_id,
-                    event_id=event_id
-                )
+                if buttons:
+                    for row in buttons:
+                        event_id = row[0].data.decode("utf-8").split(' ')[1]
+                    self.dumper.dump_message(
+                        message=m,
+                        context_id=utils.get_peer_id(target),
+                        forward_id=self.dumper.dump_forward(m.fwd_from),
+                        media_id=media_id,
+                        event_id=event_id
+                    )
             elif isinstance(m, types.MessageService):
                 if isinstance(m.action, types.MessageActionChatEditPhoto):
                     media_id = self.dumper.dump_media(m.action.photo)
