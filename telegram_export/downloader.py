@@ -143,11 +143,21 @@ class Downloader:
 
                 event_id = None
 
+                patterns = [re.compile(x) for x in [r'^(\d+)\s']]
+
                 buttons = await m.get_buttons()
 
                 if buttons:
                     for row in buttons:
-                        event_id = row[0].data.decode("utf-8").split(' ')[1]
+                        if row[0].data:
+                            for pattern in patterns:
+                                match = pattern.search(row[0].data.decode("utf-8"))
+                                if match:
+                                    event_id = match.group(1)
+                        elsif row[0].url:
+                            parts = row[0].url.split('/')
+                            if len(parts) > 0:
+                                event_id = parts[-1]
                     self.dumper.dump_message(
                         message=m,
                         context_id=utils.get_peer_id(target),
