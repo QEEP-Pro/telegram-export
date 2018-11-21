@@ -5,6 +5,7 @@ import itertools
 import logging
 import os
 import time
+import re
 from collections import defaultdict
 
 import tqdm
@@ -143,7 +144,7 @@ class Downloader:
 
                 event_id = None
 
-                patterns = [re.compile(x) for x in [r'^(\d+)\s']]
+                patterns = [re.compile(x) for x in [r'^(\d+)\s', r'(\d+)$']]
 
                 buttons = await m.get_buttons()
 
@@ -154,10 +155,6 @@ class Downloader:
                                 match = pattern.search(row[0].data.decode("utf-8"))
                                 if match:
                                     event_id = match.group(1)
-                        elsif row[0].url:
-                            parts = row[0].url.split('/')
-                            if len(parts) > 0:
-                                event_id = parts[-1]
                     self.dumper.dump_message(
                         message=m,
                         context_id=utils.get_peer_id(target),
@@ -478,9 +475,9 @@ class Downloader:
                     __log__.info('Getting participants aborted (admin '
                                  'rights revoked while getting them).')
 
-            req.offset_id, req.offset_date, stop_at = self.dumper.get_resume(
+            stop_at = self.dumper.get_resume(
                 target_id
-            )
+            )[2]
             if req.offset_id:
                 __log__.info('Resuming at %s (%s)',
                              req.offset_date, req.offset_id)
