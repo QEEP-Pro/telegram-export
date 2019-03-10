@@ -144,7 +144,7 @@ class Downloader:
 
                 event_id = None
 
-                patterns = [re.compile(x) for x in [r'^(\d+)\s', r'(\d+)$']]
+                patterns = [re.compile(x) for x in [r'\s(\d+)\s*', r'(\d+)$']]
 
                 buttons = await m.get_buttons()
 
@@ -444,13 +444,14 @@ class Downloader:
         for mid, sender_id, date in self.dumper.iter_resume_media(target_id):
             self.enqueue_media(mid, target_id, sender_id, date)
 
+        parsed_limit_date = datetime.datetime.fromtimestamp(int(limit_date))
         try:
             self.enqueue_entities((target,))
             ent_bar.total = len(self._checked_entity_ids)
             req = functions.messages.GetHistoryRequest(
                 peer=target_in,
                 offset_id=0,
-                offset_date=datetime.datetime.utcfromtimestamp(int(limit_date)),
+                offset_date=parsed_limit_date,
                 add_offset=0,
                 limit=self.dumper.chunk_size,
                 max_id=0,
