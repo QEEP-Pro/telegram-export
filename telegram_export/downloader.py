@@ -155,13 +155,14 @@ class Downloader:
                                 match = pattern.search(row[0].data.decode("utf-8"))
                                 if match:
                                     event_id = match.group(1)
-                    self.dumper.dump_message(
-                        message=m,
-                        context_id=utils.get_peer_id(target),
-                        forward_id=self.dumper.dump_forward(m.fwd_from),
-                        media_id=media_id,
-                        event_id=event_id
-                    )
+
+                self.dumper.dump_message(
+                    message=m,
+                    context_id=utils.get_peer_id(target),
+                    forward_id=self.dumper.dump_forward(m.fwd_from),
+                    media_id=media_id,
+                    event_id=event_id
+                )
             elif isinstance(m, types.MessageService):
                 if isinstance(m.action, types.MessageActionChatEditPhoto):
                     media_id = self.dumper.dump_media(m.action.photo)
