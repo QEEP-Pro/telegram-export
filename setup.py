@@ -16,9 +16,9 @@ setup(
     description='A tool to download Telegram data (users, chats, messages, '
                 'and media) into a database (and display the saved data).',
     long_description=desc,
-    url='https://github.com/expectocode/telegram-export',
-    author='expectocode and Lonami',
-    author_email='expectocode@gmail.com',
+    url='https://github.com/QEEP-Pro/telegram-export',
+    author='expectocode and Lonami and QEEP-Pro',
+    author_email='info@qeep.pro',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -28,13 +28,13 @@ setup(
     keywords='Telegram messaging database',
     packages=find_packages(),
     install_requires=[
-        'tqdm', 'telethon', 'appdirs',
+        'tqdm', 'telethon==1.6.2', 'appdirs',
         'async_generator'  # Python 3.5 async gen support
     ],
     scripts=['bin/telegram-export'],
     test_suite='telegram_export.tests',
     project_urls={
-        'Bug Reports': 'https://github.com/expectocode/telegram-export/issues',
-        'Source': 'https://github.com/expectocode/telegram-export'
+        'Bug Reports': 'https://github.com/QEEP-Pro/telegram-export/issues',
+        'Source': 'https://github.com/QEEP-Pro/telegram-export'
     }
 )
